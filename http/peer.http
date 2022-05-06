@@ -1,0 +1,29 @@
+POST http://localhost:8080/api/v1/peer
+Content-Type: application/json
+
+{
+  "public_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "endpoint": "x.x.x.x:xxxx",
+  "allowed_ips": [
+    "x.x.x.x/32",
+    "xxxx.xxxx.xxxx.xxxx::x/128"
+  ]
+}
+
+###
+
+DELETE http://localhost:8080/api/v1/peer
+Content-Type: application/json
+
+{
+  "public_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+}
+
+###
+
+GET http://localhost:8080/api/v1/peer
+Content-Type: application/json
+
+{}
+
+###
