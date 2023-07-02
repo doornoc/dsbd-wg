@@ -67,6 +67,25 @@ func Delete(c *gin.Context) {
 	})
 }
 
+func AllDelete(c *gin.Context) {
+	errCode, err := WgAllDelete()
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = db.DeleteAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OK",
+	})
+}
+
 // public_keyから削除
 func Put(c *gin.Context) {
 	var input Edit
