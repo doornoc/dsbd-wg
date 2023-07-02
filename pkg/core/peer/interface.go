@@ -1,6 +1,8 @@
 package peer
 
-import "time"
+import (
+	"time"
+)
 
 type data struct {
 	AllowedIps        []string  `json:"allowed_ips"`
@@ -12,10 +14,19 @@ type data struct {
 	TransmitBytes     int64     `json:"transmit_bytes"`
 }
 
-type inputAdd struct {
+type Clients struct {
+	Clients []Client `json:"clients"`
+}
+
+type Client struct {
 	PublicKey  string   `json:"public_key"`
 	AllowedIps []string `json:"allowed_ips"`
 	Endpoint   string   `json:"endpoint"`
+}
+
+type Edit struct {
+	OldPublicKey string `json:"old_public_key"`
+	Client       Client `json:"client"`
 }
 
 type inputDelete struct {

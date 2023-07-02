@@ -3,7 +3,10 @@ package cmd
 import (
 	"fmt"
 	"github.com/doornoc/dsbd-wg/pkg/api"
+	"github.com/doornoc/dsbd-wg/pkg/core/config"
+	"github.com/doornoc/dsbd-wg/pkg/core/peer"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 var startCmd = &cobra.Command{
@@ -11,15 +14,23 @@ var startCmd = &cobra.Command{
 	Short: "start application",
 	Long:  `start application`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//confPath, err := cmd.Flags().GetString("config")
-		//if err != nil {
-		//	log.Fatalf("could not greet: %v", err)
-		//}
-		//if config.GetConfig(confPath) != nil {
-		//	log.Fatalf("error config process |%v", err)
-		//}
+		var err error
+		config.DbPath, err = cmd.Flags().GetString("database")
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+
+		if config.DbPath == "" {
+			log.Fatalf("[error] invalid database path")
+		}
 
 		fmt.Println("------Application Start(User)------")
+
+		err = peer.WgInit()
+		if err != nil {
+			log.Println(err)
+			log.Fatalf("[error] Wireguard init process")
+		}
 
 		api.RestAPI()
 		fmt.Println("------End------")
@@ -28,5 +39,5 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.PersistentFlags().StringP("config", "c", "", "config path")
+	startCmd.PersistentFlags().StringP("database", "p", "", "database path")
 }
