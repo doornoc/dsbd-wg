@@ -32,7 +32,7 @@ func WgInit() error {
 		wg_peers = append(wg_peers, Client{
 			PublicKey:  peer.PublicKey,
 			AllowedIps: strings.Split(peer.AllowedIps, ","),
-			Endpoint:   peer.Endpoint,
+			//Endpoint:   peer.Endpoint,
 		})
 	}
 

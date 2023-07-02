@@ -28,10 +28,10 @@ func WgAdd(input []Client) (int, error) {
 			return http.StatusBadRequest, err
 		}
 
-		addr, err := net.ResolveUDPAddr("udp", peer.Endpoint)
-		if err != nil {
-			return http.StatusInternalServerError, err
-		}
+		//addr, err := net.ResolveUDPAddr("udp", peer.Endpoint)
+		//if err != nil {
+		//	return http.StatusInternalServerError, err
+		//}
 
 		var ips []net.IPNet
 		for _, allowedIp := range peer.AllowedIps {
@@ -45,7 +45,7 @@ func WgAdd(input []Client) (int, error) {
 		peers = append(peers, wgtypes.PeerConfig{
 			PublicKey:  publicKey,
 			AllowedIPs: ips,
-			Endpoint:   addr,
+			//Endpoint:   addr,
 		})
 	}
 

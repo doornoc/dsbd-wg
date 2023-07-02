@@ -32,7 +32,7 @@ func Add(c *gin.Context) {
 		{
 			PublicKey:  input.PublicKey,
 			AllowedIps: strings.Join(input.AllowedIps, ","),
-			Endpoint:   input.Endpoint,
+			//Endpoint:   input.Endpoint,
 		},
 	})
 
@@ -105,7 +105,7 @@ func Put(c *gin.Context) {
 		{
 			PublicKey:  input.Client.PublicKey,
 			AllowedIps: strings.Join(input.Client.AllowedIps, ","),
-			Endpoint:   input.Client.Endpoint,
+			//Endpoint:   input.Client.Endpoint,
 		},
 	})
 
@@ -147,7 +147,7 @@ func Overwrite(c *gin.Context) {
 		clients = append(clients, &core.Client{
 			PublicKey:  peer.PublicKey,
 			AllowedIps: strings.Join(peer.AllowedIps, ","),
-			Endpoint:   peer.Endpoint,
+			//Endpoint:   peer.Endpoint,
 		})
 	}
 

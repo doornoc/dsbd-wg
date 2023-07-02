@@ -35,7 +35,7 @@ func Delete(publicKey string) error {
 	if err != nil {
 		return err
 	}
-	return db.Delete(&[]core.Client{{PublicKey: publicKey}}).Error
+	return db.Where("public_key = ?", publicKey).Delete(&core.Client{}).Error
 }
 
 func DeleteAll() error {
