@@ -1,1 +1,3 @@
 .idea/
+http/*test.http
+*.sqlite3

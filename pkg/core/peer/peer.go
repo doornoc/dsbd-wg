@@ -1,78 +1,40 @@
 package peer
 
 import (
+	"github.com/doornoc/dsbd-wg/pkg/core"
+	"github.com/doornoc/dsbd-wg/pkg/core/db"
 	"github.com/gin-gonic/gin"
 	"golang.zx2c4.com/wireguard/wgctrl"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"net"
 	"net/http"
+	"strings"
 )
 
 func Add(c *gin.Context) {
-	var input inputAdd
+	var input Client
 	err := c.BindJSON(&input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 	}
-
-	client, err := wgctrl.New()
+	errCode, err := WgPublicCheck(input.PublicKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
 	}
-	defer client.Close()
 
-	_, err = client.Device("wg0")
+	errCode, err = WgAdd([]Client{input})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
 	}
-
-	publicKey, err := wgtypes.ParseKey(input.PublicKey)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-	}
-
-	addr, err := net.ResolveUDPAddr("udp", input.Endpoint)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-	}
-
-	var ips []net.IPNet
-	for _, allowedIp := range input.AllowedIps {
-		_, tmpIp, err := net.ParseCIDR(allowedIp)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
-			})
-		}
-		ips = append(ips, *tmpIp)
-	}
-
-	deviceConfig := wgtypes.Config{
-		Peers: []wgtypes.PeerConfig{
-			{
-				PublicKey:  publicKey,
-				AllowedIPs: ips,
-				Endpoint:   addr,
-			},
+	err = db.Add([]*core.Client{
+		{
+			PublicKey:  input.PublicKey,
+			AllowedIps: strings.Join(input.AllowedIps, ","),
+			//Endpoint:   input.Endpoint,
 		},
-	}
-
-	err = client.ConfigureDevice("wg0", deviceConfig)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-	}
+	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "OK",
@@ -88,42 +50,126 @@ func Delete(c *gin.Context) {
 		})
 	}
 
-	client, err := wgctrl.New()
+	errCode, err := WgDelete(input.PublicKey)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
-	}
-	defer client.Close()
-
-	_, err = client.Device("wg0")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": err.Error(),
-		})
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
 	}
 
-	publicKey, err := wgtypes.ParseKey(input.PublicKey)
+	err = db.Delete(input.PublicKey)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OK",
+	})
+}
+
+// public_keyから削除
+func Put(c *gin.Context) {
+	var input Edit
+	err := c.BindJSON(&input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 	}
 
-	deviceConfig := wgtypes.Config{
-		Peers: []wgtypes.PeerConfig{
-			{
-				PublicKey: publicKey,
-				Remove:    true,
-			},
-		},
+	errCode, err := WgPublicCheck(input.Client.PublicKey)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
 	}
 
-	err = client.ConfigureDevice("wg0", deviceConfig)
+	errCode, err = WgDelete(input.OldPublicKey)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = db.Delete(input.OldPublicKey)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	errCode, err = WgAdd([]Client{input.Client})
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = db.Add([]*core.Client{
+		{
+			PublicKey:  input.Client.PublicKey,
+			AllowedIps: strings.Join(input.Client.AllowedIps, ","),
+			//Endpoint:   input.Client.Endpoint,
+		},
+	})
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OK",
+	})
+}
+
+func Overwrite(c *gin.Context) {
+	var input Clients
+	err := c.BindJSON(&input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	errCode, err := WgAllDelete()
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	err = db.DeleteAll()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
+	}
+
+	errCode, err = WgAdd(input.Clients)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
+	}
+
+	var clients []*core.Client
+	for _, peer := range input.Clients {
+		clients = append(clients, &core.Client{
+			PublicKey:  peer.PublicKey,
+			AllowedIps: strings.Join(peer.AllowedIps, ","),
+			//Endpoint:   peer.Endpoint,
+		})
+	}
+
+	err = db.Add(clients)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "OK",
+	})
+}
+
+func Check(c *gin.Context) {
+	var input Client
+	err := c.BindJSON(&input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+	}
+	errCode, err := WgPublicCheck(input.PublicKey)
+	if err != nil {
+		c.JSON(errCode, gin.H{"message": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

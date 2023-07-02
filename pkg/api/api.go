@@ -16,8 +16,11 @@ func RestAPI() error {
 		v1 := api.Group("/v1")
 		{
 			v1.POST("/peer", peer.Add)
+			v1.PUT("/peer", peer.Put)
 			v1.GET("/peer", peer.Get)
 			v1.DELETE("/peer", peer.Delete)
+			v1.POST("/peer/check", peer.Check)
+			v1.DELETE("/peer/put", peer.Overwrite)
 		}
 	}
 
