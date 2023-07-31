@@ -1,5 +1,10 @@
 # dsbd-wg
 **wireguardのpeerをAdd,Delete,Getするアプリケーション**
+## Install
+```
+go install github.com/doornoc/dsbd-wg/cmd/backend@latest
+```
+
 ### Add
 **POST /api/v1/peer**
 ```json
