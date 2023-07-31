@@ -20,7 +20,8 @@ func RestAPI() error {
 			v1.GET("/peer", peer.Get)
 			v1.DELETE("/peer", peer.Delete)
 			v1.POST("/peer/check", peer.Check)
-			v1.DELETE("/peer/put", peer.Overwrite)
+			v1.PUT("/peer/all", peer.Overwrite)
+			v1.DELETE("/peer/all", peer.AllDelete)
 		}
 	}
 

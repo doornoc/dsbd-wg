@@ -3,12 +3,20 @@ package peer
 import (
 	"fmt"
 	"github.com/doornoc/dsbd-wg/pkg/core"
+	"github.com/doornoc/dsbd-wg/pkg/core/config"
 	"github.com/doornoc/dsbd-wg/pkg/core/db"
+	"os"
 	"strings"
 	"time"
 )
 
 func WgInit() error {
+	// file check
+	_, err := os.Stat(config.DbPath)
+	if err != nil {
+		os.Create(config.DbPath)
+	}
+
 	db, err := db.ConnectDB()
 	if err != nil {
 		return err
@@ -36,6 +44,9 @@ func WgInit() error {
 		})
 	}
 
+	if len(wg_peers) == 0 {
+		return nil
+	}
 	_, err = WgAdd(wg_peers)
 	if err != nil {
 		return err
