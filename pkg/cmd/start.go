@@ -24,6 +24,11 @@ var startCmd = &cobra.Command{
 			log.Fatalf("[error] invalid database path")
 		}
 
+		config.Debug, err = cmd.Flags().GetBool("debug")
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+
 		fmt.Println("------Application Start(User)------")
 
 		err = peer.WgInit()
@@ -40,4 +45,5 @@ var startCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(startCmd)
 	startCmd.PersistentFlags().StringP("database", "p", "", "database path")
+	startCmd.PersistentFlags().BoolP("debug", "d", false, "debug")
 }
