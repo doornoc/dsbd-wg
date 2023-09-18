@@ -43,5 +43,6 @@ func DeleteAll() error {
 	if err != nil {
 		return err
 	}
-	return db.Exec("DELETE FROM client").Error
+	sessionDb := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Delete(&core.Client{})
+	return sessionDb.Error
 }

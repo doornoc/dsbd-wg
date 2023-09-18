@@ -1,8 +1,10 @@
 package peer
 
 import (
+	"fmt"
 	"github.com/doornoc/dsbd-wg/pkg/core"
 	"github.com/doornoc/dsbd-wg/pkg/core/db"
+	"github.com/doornoc/dsbd-wg/pkg/core/tool"
 	"github.com/gin-gonic/gin"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"net/http"
@@ -13,18 +15,21 @@ func Add(c *gin.Context) {
 	var input Client
 	err := c.BindJSON(&input)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Add] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 	}
 	errCode, err := WgPublicCheck(input.PublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Add] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	errCode, err = WgAdd([]Client{input})
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Add] Code: %d, Error: %s", 2, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
@@ -45,6 +50,7 @@ func Delete(c *gin.Context) {
 	var input inputDelete
 	err := c.BindJSON(&input)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Delete] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -52,12 +58,14 @@ func Delete(c *gin.Context) {
 
 	errCode, err := WgDelete(input.PublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Delete] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	err = db.Delete(input.PublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Delete] Code: %d, Error: %s", 2, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
@@ -70,12 +78,14 @@ func Delete(c *gin.Context) {
 func AllDelete(c *gin.Context) {
 	errCode, err := WgAllDelete()
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[AllDelete] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	err = db.DeleteAll()
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[AllDelete] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
@@ -91,6 +101,7 @@ func Put(c *gin.Context) {
 	var input Edit
 	err := c.BindJSON(&input)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Put] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -98,24 +109,28 @@ func Put(c *gin.Context) {
 
 	errCode, err := WgPublicCheck(input.Client.PublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Put] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	errCode, err = WgDelete(input.OldPublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Put] Code: %d, Error: %s", 2, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	err = db.Delete(input.OldPublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Put] Code: %d, Error: %s", 3, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	errCode, err = WgAdd([]Client{input.Client})
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Put] Code: %d, Error: %s", 4, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
@@ -137,6 +152,7 @@ func Overwrite(c *gin.Context) {
 	var input Clients
 	err := c.BindJSON(&input)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Overwrite] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -144,12 +160,14 @@ func Overwrite(c *gin.Context) {
 
 	errCode, err := WgAllDelete()
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Overwrite] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
 
 	err = db.DeleteAll()
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Overwrite] Code: %d, Error: %s", 2, err.Error()))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
@@ -157,6 +175,7 @@ func Overwrite(c *gin.Context) {
 
 	errCode, err = WgAdd(input.Clients)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Overwrite] Code: %d, Error: %s", 3, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
@@ -181,12 +200,14 @@ func Check(c *gin.Context) {
 	var input Client
 	err := c.BindJSON(&input)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Check] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 	}
 	errCode, err := WgPublicCheck(input.PublicKey)
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Check] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(errCode, gin.H{"message": err.Error()})
 		return
 	}
@@ -199,6 +220,7 @@ func Check(c *gin.Context) {
 func Get(c *gin.Context) {
 	client, err := wgctrl.New()
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Get] Code: %d, Error: %s", 0, err.Error()))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
@@ -207,6 +229,7 @@ func Get(c *gin.Context) {
 
 	device, err := client.Device("wg0")
 	if err != nil {
+		tool.OutputLog(fmt.Sprintf("[Get] Code: %d, Error: %s", 1, err.Error()))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
