@@ -1,0 +1,54 @@
+name: release
+
+on:
+  push:
+    tags:
+    - "v[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  SLACK_USERNAME: GitHub Actions
+  SLACK_ICON: ":github:"
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  release:
+    name: release tool
+    runs-on:
+      - self-hosted
+      - linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+      - name: Build tool
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          args: build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release tool
+        uses: goreleaser/goreleaser-action@v3
+        with:
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Slack Notification on Success
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ success() }}
+        env:
+          SLACK_TITLE: Deploy / Success
+          SLACK_COLOR: good
+          SLACK_MESSAGE: "[dsbd-wg] Success github acitons!"
+
+      # 失敗
+      - name: Slack Notification on Failure
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ failure() }}
+        env:
+          SLACK_TITLE: Deploy / Failure
+          SLACK_COLOR: danger
+          SLACK_MESSAGE: "[dsbd-wg] Failed github actions..."
