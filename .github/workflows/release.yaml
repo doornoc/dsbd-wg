@@ -13,9 +13,6 @@ env:
 jobs:
   release:
     name: release tool
-    runs-on:
-      - self-hosted
-      - linux
     steps:
       - name: Checkout
         uses: actions/checkout@v3
