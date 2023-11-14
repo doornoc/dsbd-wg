@@ -1,4 +1,5 @@
 .idea/
+dist/
 http/*test.http
 *.sqlite3
 *.sqlite
