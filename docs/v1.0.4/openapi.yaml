@@ -1,0 +1,370 @@
+openapi: 3.0.0
+info:
+  title: dsbd-wg
+  description: dsbd wireguard system
+  version: v1.0.4
+servers:
+  - url: 'http://localhost:8080'
+    description: localhost
+paths:
+  /api/v1/peer:
+    post:
+      tags:
+        - peer
+      summary: Post
+      operationId: post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                public_key:
+                  type: string
+                  example: public_key
+                allowed_ips:
+                  type: array
+                  items:
+                    type: string
+                    example: ip_address
+                endpoint:
+                  type: string
+                  example: endpoint_ip
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+    put:
+      tags:
+        - peer
+      summary: Put
+      operationId: put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_public_key:
+                  type: string
+                  example: old_public_key
+                client:
+                  type: object
+                  properties:
+                    public_key:
+                      type: string
+                      example: public_key
+                    allowed_ips:
+                      type: array
+                      items:
+                        type: string
+                        example: ip_address
+                    endpoint:
+                      type: string
+                      example: endpoint_ip
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+    get:
+      tags:
+        - peer
+      summary: Get
+      operationId: get
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        allowed_ips:
+                          type: array
+                          items:
+                            type: string
+                            example: ip_address
+                        last_handshake_time:
+                          type: string
+                          example: 2021-08-31T08:00:00Z
+                        endpoint:
+                          type: string
+                          example: endpoint_ip
+                        preshared_key:
+                          type: string
+                          example: preshare_key
+                        public_key:
+                          type: string
+                          example: public_key
+                        received_bytes:
+                          type: integer
+                          example: 100
+                        transmitted_bytes:
+                          type: integer
+                          example: 100
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+    delete:
+      tags:
+        - peer
+      summary: Delete
+      operationId: delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                public_key:
+                  type: string
+                  example: public_key
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+  /api/v1/peer/check:
+    post:
+      tags:
+        - peer
+      summary: Check
+      operationId: post_check
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                public_key:
+                  type: string
+                  example: public_key
+                allowed_ips:
+                  type: array
+                  items:
+                    type: string
+                    example: ip_address
+                endpoint:
+                  type: string
+                  example: endpoint_ip
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+  /api/v1/peer/all:
+    put:
+      tags:
+        - peer
+      summary: Put
+      operationId: put_all
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                clients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      public_key:
+                        type: string
+                        example: public_key
+                      allowed_ips:
+                        type: array
+                        items:
+                          type: string
+                          example: ip_address
+                      endpoint:
+                        type: string
+                        example: endpoint_ip
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
+    delete:
+      tags:
+        - peer
+      summary: Delete
+      operationId: delete_all
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: request error
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: public key is exist
