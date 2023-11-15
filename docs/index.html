@@ -18,6 +18,9 @@
       let table_api = document.getElementById('table_api');
       let html = '';
       for (let version of versions) {
+        if (version === '') {
+          continue;
+        }
         html += '<tr><th scope="row">' + version + '</th><td><a href="./' + version + '/index.html">HERE</a></td></tr>';
         console.log(version)
       }
