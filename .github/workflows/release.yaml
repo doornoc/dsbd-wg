@@ -3,7 +3,7 @@ name: release
 on:
   push:
     tags:
-    - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
   SLACK_USERNAME: GitHub Actions
@@ -17,6 +17,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -33,6 +34,23 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: deploy openapi
+        env:
+          TARGET_BRANCH: 'master'
+        run: |
+          if [ ! -e docs/${GITHUB_REF#refs/*/} ]; then mkdir -p docs/${GITHUB_REF#refs/*/} ; fi
+          if grep -Fxq "${GITHUB_REF#refs/*/}" docs/version.txt; then echo "already exists"; else echo "${GITHUB_REF#refs/*/}" >> docs/version.txt; fi
+          cp openapi.yaml docs/${GITHUB_REF#refs/*/}/openapi.yaml
+          cp openapi.html docs/${GITHUB_REF#refs/*/}/index.html
+          sed -i -e "s/version: latest/version: ${GITHUB_REF#refs/*/}/" docs/${GITHUB_REF#refs/*/}/openapi.yaml
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git fetch                        
+          git checkout $TARGET_BRANCH
+          git add -A
+          git diff-index --quiet HEAD ||  git commit -am "[GitHub Actions] deploy api reference"
+          git push origin $TARGET_BRANCH
 
       - name: Slack Notification on Success
         uses: rtCamp/action-slack-notify@v2
