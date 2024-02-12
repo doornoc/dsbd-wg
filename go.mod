@@ -8,8 +8,8 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/spf13/cobra v1.8.0
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6
-	gorm.io/driver/sqlite v1.5.4
-	gorm.io/gorm v1.25.5
+	gorm.io/driver/sqlite v1.5.5
+	gorm.io/gorm v1.25.7-0.20240204074919-46816ad31dde
 )
 
 require (
